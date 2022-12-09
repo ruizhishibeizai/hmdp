@@ -1,7 +1,7 @@
 package com.hmdp.config;
 
 import com.hmdp.utils.LoginInterceptor;
-//import com.hmdp.utils.RefreshTokenInterceptor;
+import com.hmdp.utils.RefreshTokenInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,12 +12,13 @@ import javax.annotation.Resource;
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
 
-//    @Resource
-//    private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 登录拦截器
+        //order是控制拦截器先后顺序的变量，越小优先级越高，若大小一样按添加顺序执行
         registry.addInterceptor(new LoginInterceptor())
                 .excludePathPatterns(
                         "/shop/**",
@@ -27,8 +28,9 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/blog/hot",
                         "/user/code",
                         "/user/login"
-                );
+                ).order(1);
         // token刷新的拦截器
-//        registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0);
+        registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).
+                addPathPatterns("/**").order(0);
     }
 }
